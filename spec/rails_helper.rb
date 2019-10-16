@@ -9,7 +9,8 @@ require 'rspec/rails'
 
 # специальные "матчеры" - методы, удобные для тестирования валидаций
 Shoulda::Matchers.configure do |config|
-  config.integrate do |with| with.test_framework :rspec
+  config.integrate do |with|
+    with.test_framework :rspec
     with.library :rails
   end
 end
@@ -62,4 +63,3 @@ end
 
 # Это нужно, чтобы капибара искала стили и js в правильном месте
 Capybara.asset_host = "http://localhost:3000"
-

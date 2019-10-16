@@ -26,7 +26,7 @@ RSpec.describe Game, type: :model do
         game = Game.create_game_for_user!(user)
       }.to change(Game, :count).by(1).and(# проверка: Game.count изменился на 1 (создали в базе 1 игру)
         change(GameQuestion, :count).by(15).and(# GameQuestion.count +15
-          change(Question, :count).by(0) # Game.count не должен измениться
+          change(Question, :count).by(0) # Question.count не должен измениться
         )
       )
       # проверяем статус и поля
@@ -37,7 +37,6 @@ RSpec.describe Game, type: :model do
       expect(game.game_questions.map(&:level)).to eq (0..14).to_a
     end
   end
-
 
   # тесты на основную игровую логику
   context 'game mechanics' do
