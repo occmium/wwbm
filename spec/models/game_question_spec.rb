@@ -46,4 +46,13 @@ RSpec.describe GameQuestion, type: :model do
       expect(ah.keys).to contain_exactly('a', 'b', 'c', 'd')
     end
   end
+
+  # Задача 61-2 — khsm: тесты на GameQuestion#text/level
+  context 'methods' do
+    # тест на наличие методов делегатов level и text
+    it 'correct .level & .text delegates' do
+      expect(game_question.text).to eq(game_question.question.text)
+      expect(game_question.level).to eq(game_question.question.level)
+    end
+  end
 end
