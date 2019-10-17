@@ -40,6 +40,17 @@ RSpec.describe Game, type: :model do
 
   # тесты на основную игровую логику
   context 'game mechanics' do
+    #  Задача 61-6 — khsm: Тесты на Game#current_game_question
+    it 'correct .current_game_question' do
+      game_w_questions.current_level = 14
+      expect(game_w_questions.current_game_question).to eq(game_w_questions.game_questions[14])
+    end
+
+    #  Задача 61-6 — khsm: Тесты на Game#previous_level
+    it 'correct .previous_level' do
+      game_w_questions.current_level = 15
+      expect(game_w_questions.previous_level).to eq(14)
+    end
 
     # правильный ответ должен продолжать игру
     it 'answer correct continues game' do
