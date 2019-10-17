@@ -38,6 +38,52 @@ RSpec.describe Game, type: :model do
     end
   end
 
+  # # Задача 61-7 — khsm: тесты на Game#answer_current_question!
+  context '.answer_current_question!' do
+    # перед каждым тестом "начинаем игру"
+    # before(:each) do
+    #   game_w_questions.created_at = Time.now
+    #   # expect(game_w_questions.finished?).to be_falsey
+    # end
+
+    # когда ответ неправильный
+    it 'answer wrong' do
+      %w(a b c).each do |letter|
+        expect(game_w_questions.answer_current_question!(letter)).to eq(false )
+      end
+    end
+
+    # когда ответ правильный
+    it 'answer right' do
+      expect(game_w_questions.answer_current_question!('d')).to eq(true)
+    end
+
+    # когда последний ответ правильный
+    it 'answer last right' do
+      game_w_questions.current_level = Question::QUESTION_LEVELS.max
+      expect(game_w_questions.answer_current_question!('d')).to eq(true)
+      expect(game_w_questions.status).to eq(:won)
+    end
+
+    # когда последний ответ неправильный
+    it 'answer last wrong' do
+      game_w_questions.current_level = Question::QUESTION_LEVELS.max
+      %w(a b c).each do |letter|
+        expect(game_w_questions.answer_current_question!(letter)).to eq(false )
+      end
+      expect(game_w_questions.status).to eq(:fail)
+    end
+
+    # когда ответ после истечения времени
+    it 'answer after time' do
+      game_w_questions.created_at = Time.now - Game::TIME_LIMIT
+      %w(a b c d).each do |letter|
+        expect(game_w_questions.answer_current_question!(letter)).to eq(false )
+        expect(game_w_questions.status).to eq(:timeout)
+      end
+    end
+  end
+
   # тесты на основную игровую логику
   context 'game mechanics' do
     #  Задача 61-6 — khsm: Тесты на Game#current_game_question
