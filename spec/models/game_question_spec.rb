@@ -12,6 +12,23 @@ RSpec.describe GameQuestion, type: :model do
 
   # группа тестов на игровое состояние объекта вопроса
   context 'game status' do
+    # Задача 63-1 — khsm: тест на GameQuestion#help_hash
+    # тест на метод help_hash модели GameQuestion
+    it 'correct .help_hash' do
+      hh = game_question.help_hash
+      expect(hh).to eq({})
+
+      hh[:key_one] = "value_one"
+      hh[:key_two] = "value_two"
+      hh[:key_three] = "value_three"
+      game_question.save
+
+      new_question = GameQuestion.find(game_question.id)
+      expect(new_question.help_hash).to eq({key_one: "value_one",
+                        key_two: "value_two",
+                        key_three: "value_three"})
+    end
+
     # тест на правильную генерацию хэша с вариантами
     it 'correct .variants' do
       expect(game_question.variants).to eq({'a' => game_question.question.answer2,
