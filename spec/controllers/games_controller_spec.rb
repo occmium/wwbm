@@ -140,6 +140,20 @@ RSpec.describe GamesController, type: :controller do
       expect(flash.empty?).to be_truthy # удачный ответ не заполняет flash
     end
 
+    # Задача 62-5 — khsm: тест на GamesController#answer (неправильный ответ)
+    # юзер отвечает на вопрос некорректно - игра завершается
+    # проверяет случай "неправильный ответ игрока".
+    it 'answers incorrect' do
+      # передаем параметр params[:letter]
+      put :answer, id: game_w_questions.id, letter: 'a'
+      game = assigns(:game)
+
+      expect(game.finished?).to be_truthy
+      expect(game.status).to eq(:fail)
+      expect(response).to redirect_to(user_path(user))
+      expect(flash[:alert]).to be # неудачный ответ заполняет flash
+    end
+
     # Задача 62-2 — khsm: тест на GamesController#take_money
     # пользователь берет деньги до конца игры
     it 'takes money' do
