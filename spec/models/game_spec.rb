@@ -48,14 +48,14 @@ RSpec.describe Game, type: :model do
 
     # когда ответ неправильный
     it 'answer wrong' do
-      %w(a b c).each do |letter|
-        expect(game_w_questions.answer_current_question!(letter)).to eq(false )
-      end
+      expect(game_w_questions.answer_current_question!('a')).to eq(false )
+      expect(game_w_questions.status).to eq(:fail)
     end
 
     # когда ответ правильный
     it 'answer right' do
       expect(game_w_questions.answer_current_question!('d')).to eq(true)
+      expect(game_w_questions.status).to eq(:in_progress)
     end
 
     # когда последний ответ правильный
@@ -63,15 +63,6 @@ RSpec.describe Game, type: :model do
       game_w_questions.current_level = Question::QUESTION_LEVELS.max
       expect(game_w_questions.answer_current_question!('d')).to eq(true)
       expect(game_w_questions.status).to eq(:won)
-    end
-
-    # когда последний ответ неправильный
-    it 'answer last wrong' do
-      game_w_questions.current_level = Question::QUESTION_LEVELS.max
-      %w(a b c).each do |letter|
-        expect(game_w_questions.answer_current_question!(letter)).to eq(false )
-      end
-      expect(game_w_questions.status).to eq(:fail)
     end
 
     # когда ответ после истечения времени
