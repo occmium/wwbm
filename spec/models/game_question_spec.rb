@@ -62,6 +62,17 @@ RSpec.describe GameQuestion, type: :model do
       ah = game_question.help_hash[:audience_help]
       expect(ah.keys).to contain_exactly('a', 'b', 'c', 'd')
     end
+
+    # Задача 63-2 — khsm: тест на GameQuestion#fifty_fifty
+    # проверяет использование подсказки 50/50.
+    it 'correct 50_50' do
+      expect(game_question.help_hash).not_to include(:fifty_fifty)
+
+      game_question.add_fifty_fifty
+
+      expect(game_question.help_hash).to include(:fifty_fifty)
+      expect(game_question.help_hash[:fifty_fifty].length).to eq(2)
+    end
   end
 
   # Задача 61-2 — khsm: тесты на GameQuestion#text/level
