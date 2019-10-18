@@ -73,6 +73,14 @@ RSpec.describe GameQuestion, type: :model do
       expect(game_question.help_hash).to include(:fifty_fifty)
       expect(game_question.help_hash[:fifty_fifty].length).to eq(2)
     end
+
+    # Задача 63-3 — khsm: тест на GameQuestion#friend_call
+    # проверяет работу подсказки "звонок другу"
+    it 'correct friend_call' do
+      expect(game_question.help_hash).not_to include(:friend_call)
+      game_question.add_friend_call
+      expect(game_question.help_hash[:friend_call].last).to be_in(%w(A B C D))
+    end
   end
 
   # Задача 61-2 — khsm: тесты на GameQuestion#text/level
