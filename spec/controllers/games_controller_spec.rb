@@ -26,6 +26,59 @@ RSpec.describe GamesController, type: :controller do
       # проверяем ответ
       expect(response.status).not_to eq(200) # статус не 200 ОК
       expect(response).to redirect_to(new_user_session_path) # devise должен отправить на логин
+      #  Задача 62-4 — khsm: тест на GamesController#show (без юзера)
+      # Анонимный (незалогиненный) посетитель не может вызвать действие show у GamesController
+      expect(response).not_to render_template('show') # и отрендерить шаблон show
+      expect(flash[:alert]).to be # во flash должен быть прописана ошибка
+    end
+
+    #  Задача 62-4 — khsm: тест на GamesController#show (без юзера)
+    # Напишите тесты, которые проверяют, что аноним не может
+    # также вызывать и все другие действия этого контроллера.
+    it 'kick from #create' do
+      game = assigns(:game) # вытаскиваем из контроллера поле @game
+      # вызываем экшен
+      post :create
+      # проверяем ответ
+      expect(game).to be_nil
+      expect(response.status).not_to eq(200) # статус не 200 ОК
+      expect(response).to redirect_to(new_user_session_path) # devise должен отправить на логин
+      expect(flash[:alert]).to be # во flash должен быть прописана ошибка
+    end
+
+    # и все другие действия этого контроллера.
+    it 'kick from #answer' do
+      game = assigns(:game) # вытаскиваем из контроллера поле @game
+      # вызываем экшен
+      put :answer, id: game_w_questions.id
+      # проверяем ответ
+      expect(game).to be_nil
+      expect(response.status).not_to eq(200) # статус не 200 ОК
+      expect(response).to redirect_to(new_user_session_path) # devise должен отправить на логин
+      expect(flash[:alert]).to be # во flash должен быть прописана ошибка
+    end
+
+    # и все другие действия этого контроллера.
+    it 'kick from #take_money' do
+      game = assigns(:game) # вытаскиваем из контроллера поле @game
+      # вызываем экшен
+      put :take_money, id: game_w_questions.id
+      # проверяем ответ
+      expect(game).to be_nil
+      expect(response.status).not_to eq(200) # статус не 200 ОК
+      expect(response).to redirect_to(new_user_session_path) # devise должен отправить на логин
+      expect(flash[:alert]).to be # во flash должен быть прописана ошибка
+    end
+
+    # и все другие действия этого контроллера.
+    it 'kick from #help' do
+      game = assigns(:game) # вытаскиваем из контроллера поле @game
+      # вызываем экшен
+      put :help, id: game_w_questions.id
+      # проверяем ответ
+      expect(game).to be_nil
+      expect(response.status).not_to eq(200) # статус не 200 ОК
+      expect(response).to redirect_to(new_user_session_path) # devise должен отправить на логин
       expect(flash[:alert]).to be # во flash должен быть прописана ошибка
     end
   end
@@ -62,6 +115,19 @@ RSpec.describe GamesController, type: :controller do
       expect(response).to render_template('show') # и отрендерить шаблон show
     end
 
+    # Задача 62-1 — khsm: тест на GamesController#show (чужая игра)
+    # юзер не видит чужую игру
+    it '#show not your game' do
+      someone_game = FactoryBot.create(:game_with_questions)
+      get :show, id: someone_game.id
+      expect(someone_game.finished?).to be_falsey
+      expect(someone_game.user).not_to eq(user)
+
+      expect(flash[:alert]).to be # flash должен быть
+      expect(response.status).not_to eq(200) # не должен быть ответ HTTP 200
+      expect(response).to redirect_to(root_path) # перенаправление в корень
+    end
+
     # юзер отвечает на игру корректно - игра продолжается
     it 'answers correct' do
       # передаем параметр params[:letter]
@@ -72,6 +138,25 @@ RSpec.describe GamesController, type: :controller do
       expect(game.current_level).to be > 0
       expect(response).to redirect_to(game_path(game))
       expect(flash.empty?).to be_truthy # удачный ответ не заполняет flash
+    end
+
+    # Задача 62-2 — khsm: тест на GamesController#take_money
+    # пользователь берет деньги до конца игры
+    it 'takes money' do
+      # вручную поднимем уровень вопроса до выигрыша 200
+      game_w_questions.update_attribute(:current_level, 2)
+
+      put :take_money, id: game_w_questions.id
+      game = assigns(:game)
+      expect(game.finished?).to be_truthy
+      expect(game.prize).to eq(200)
+
+      # пользователь изменился в базе, надо в коде перезагрузить!
+      user.reload
+      expect(user.balance).to eq(200)
+
+      expect(response).to redirect_to(user_path(user))
+      expect(flash[:warning]).to be
     end
 
     # тест на отработку "помощи зала"
@@ -90,6 +175,24 @@ RSpec.describe GamesController, type: :controller do
       expect(game.current_game_question.help_hash[:audience_help]).to be
       expect(game.current_game_question.help_hash[:audience_help].keys).to contain_exactly('a', 'b', 'c', 'd')
       expect(response).to redirect_to(game_path(game))
+    end
+
+    # Задача 62-3 — khsm: тест на GamesController#create (вторая игра)
+    # Пользователь не может начать две игры. Если он начинает вторую,
+    # его перенаправляют на первую
+    it 'try to create second game' do
+      # убедились что есть игра в работе
+      expect(game_w_questions.finished?).to be_falsey
+
+      # отправляем запрос на создание, убеждаемся что новых Game не создалось
+      expect { post :create }.to change(Game, :count).by(0)
+
+      game = assigns(:game) # вытаскиваем из контроллера поле @game
+      expect(game).to be_nil
+
+      # и редирект на страницу старой игры
+      expect(response).to redirect_to(game_path(game_w_questions))
+      expect(flash[:alert]).to be
     end
   end
 end
