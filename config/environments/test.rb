@@ -13,8 +13,8 @@ Rails.application.configure do
   config.eager_load = false
 
   # Configure static file server for tests with Cache-Control for performance.
-  config.serve_static_files = true
-  config.static_cache_control = 'public, max-age=3600'
+  # config.serve_static_files = true
+  # config.static_cache_control = 'public, max-age=3600'
 
   # Show full error reports and disable caching.
   config.consider_all_requests_local = true
@@ -43,8 +43,8 @@ Rails.application.configure do
   # Настройки для капибары и ланчи, чтобы в открываемых с помощью
   # save_and_open_page страницах были все нужные стили
   # Внимание! Нужно поднять сервер на 3000-м порте.
-  config.serve_static_files = true
+  config.serve_static_files = true # L16
   config.assets.debug = true
   config.asset_host   = 'http://localhost:3000'
-  config.static_cache_control = 'public, max-age=3600'
+  config.static_cache_control = 'public, max-age=3600' # L17
 end
